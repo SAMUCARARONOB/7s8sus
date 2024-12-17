@@ -1,0 +1,714 @@
+PlayersFunctionsTab:CreateButton({
+    Name = "Aumentar Dano Causado",
+    Callback = function()
+        IncreaseDamage()
+    end
+})
+
+PlayersFunctionsTab:CreateButton({
+    Name = "Aumentar Saúde",
+    Callback = function()
+        IncreaseHealth()
+    end
+})
+-- Função para ativar o God Mode
+local function ActivateGodMode()
+    local player = game.Players.LocalPlayer
+    local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+    if humanoid then
+        humanoid.Name = "GodModeHumanoid"
+        local newHumanoid = humanoid:Clone()
+        newHumanoid.Parent = player.Character
+        newHumanoid.Name = "Humanoid"
+        player.Character.Animate.Disabled = true
+        player.Character.Animate.Disabled = false
+        humanoid:Destroy()
+        print("God Mode ativado")
+    end
+end
+
+-- Botão para ativar God Mode
+PlayersFunctionsTab:CreateToggle({
+    Name = "God Mode",
+    Callback = function()
+        ActivateGodMode()
+    end
+})
+PlayersFunctionsTab:CreateToggle({
+    Name = "Super Salto",
+    Callback = function()
+        SuperJump()
+    end
+})
+
+PlayersFunctionsTab:CreateToggle({
+    Name = "Invisibilidade",
+    Callback = function()
+        BecomeInvisible()
+    end
+})
+
+PlayersFunctionsTab:CreateButton({
+    Name = "NoClip",
+    Callback = function()
+        EnableNoClip()
+    end
+}) -- Função para Speed Hack
+local function SpeedHack()
+    local player = game.Players.LocalPlayer
+    player.Character.Humanoid.WalkSpeed = 100
+    print("Speed Hack ativado")
+end
+
+-- Função para Teleport to Random Location
+local function TeleportRandom()
+    local player = game.Players.LocalPlayer
+    player.Character.HumanoidRootPart.CFrame = CFrame.new(Vector3.new(math.random(-1000, 1000), math.random(50, 100), math.random(-1000, 1000)))
+    print("Teleportado para localização aleatória")
+end
+
+-- Função para Fly Mode
+local flyEnabled = false
+local function FlyMode()
+    local player = game.Players.LocalPlayer
+    flyEnabled = not flyEnabled
+    if flyEnabled then
+        local flyPart = Instance.new("Part")
+        flyPart.Name = "FlyPart"
+        flyPart.Parent = player.Character
+        flyPart.Anchored = true
+        flyPart.CanCollide = false
+        flyPart.Transparency = 1
+        game:GetService("RunService").Stepped:Connect(function()
+            if flyEnabled then
+                flyPart.CFrame = player.Character.HumanoidRootPart.CFrame * CFrame.new(0, 5, 0)
+                player.Character.HumanoidRootPart.CFrame = flyPart.CFrame
+            else
+                flyPart:Destroy()
+            end
+        end)
+        print("Fly Mode ativado")
+    else
+        print("Fly Mode desativado")
+    end
+end
+
+-- Função para Infinite Jump
+local infiniteJumpEnabled = false
+local function InfiniteJump()
+    infiniteJumpEnabled = not infiniteJumpEnabled
+    game:GetService("UserInputService").JumpRequest:Connect(function()
+        if infiniteJumpEnabled then
+            game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid"):ChangeState("Jumping")
+        end
+    end)
+    print("Infinite Jump " .. (infiniteJumpEnabled and "ativado" or "desativado"))
+end
+
+-- Função para ESP
+local function ESP()
+    for _, player in pairs(game.Players:GetPlayers()) do
+        if player ~= game.Players.LocalPlayer then
+            local highlight = Instance.new("Highlight")
+            highlight.Parent = player.Character
+        end
+    end
+    print("ESP ativado")
+end
+
+-- Função para Instant Kill
+local function InstantKill()
+    local targetPlayer = GetVisibleClosestPlayer()
+    if targetPlayer and targetPlayer.Character and targetPlayer.Character:FindFirstChildOfClass("Humanoid") then
+        targetPlayer.Character.Humanoid.Health = 0
+        print("Jogador " .. targetPlayer.Name .. " morto instantaneamente")
+    end
+end
+
+-- Função para Super Strength
+local function SuperStrength()
+    local player = game.Players.LocalPlayer
+    player.Character.HumanoidRootPart.Anchored = true
+    for _, tool in pairs(player.Backpack:GetChildren()) do
+        if tool:IsA("Tool") and tool:FindFirstChild("Handle") then
+            tool.Handle.Massless = true
+            tool.Handle.Velocity = Vector3.new(0, 0, 1000)
+        end
+    end
+    wait(1)
+    player.Character.HumanoidRootPart.Anchored = false
+    print("Super Strength ativada")
+end
+
+local espEnabled = false
+local localPlayer = game.Players.LocalPlayer
+local players = game:GetService("Players")
+local runService = game:GetService("RunService")
+local tweenService = game:GetService("TweenService")
+
+local function createESP(player)
+    if player ~= localPlayer and player.Character and player.Character:FindFirstChild("HumanoidRootPart") then
+        local character = player.Character
+        if not character:FindFirstChild("ESPHighlight") then
+            local highlight = Instance.new("Highlight")
+            highlight.Name = "ESPHighlight"
+            highlight.Adornee = character
+            highlight.Parent = character
+            highlight.FillColor = Color3.fromRGB(255, 0, 0)
+            highlight.OutlineColor = Color3.fromRGB(0, 0, 0)
+            highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+            highlight.FillTransparency = 0.5
+            highlight.OutlineTransparency = 0
+
+            local highlightGoal = {FillTransparency = 0.8}
+            local highlightTweenInfo = TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
+            local highlightTween = tweenService:Create(highlight, highlightTweenInfo, highlightGoal)
+            highlightTween:Play()
+
+            local billboard = Instance.new("BillboardGui", character)
+            billboard.Name = "ESPBillboard"
+            billboard.Adornee = character.Head
+            billboard.Size = UDim2.new(0, 50, 0, 50)
+            billboard.StudsOffset = Vector3.new(0, 3, 0)
+            billboard.AlwaysOnTop = true
+
+            local textLabel = Instance.new("TextLabel", billboard)
+            textLabel.Size = UDim2.new(1, 0, 1, 0)
+            textLabel.BackgroundTransparency = 1
+            textLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+            textLabel.TextStrokeTransparency = 0
+            textLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+            textLabel.TextScaled = true
+            textLabel.Text = string.format("%s\nHealth: %d\nDistance: %.1f\nSpeed: %.1f",
+                player.Name,
+                character.Humanoid and character.Humanoid.Health or 0,
+                (localPlayer.Character.HumanoidRootPart.Position - character.HumanoidRootPart.Position).magnitude,
+                character.HumanoidRootPart.Velocity.Magnitude
+            )
+
+            runService.RenderStepped:Connect(function()
+                if character and character:FindFirstChild("HumanoidRootPart") then
+                    textLabel.Text = string.format("%s\nHealth: %d\nDistance: %.1f\nSpeed: %.1f",
+                        player.Name,
+                        character.Humanoid and character.Humanoid.Health or 0,
+                        (localPlayer.Character.HumanoidRootPart.Position - character.HumanoidRootPart.Position).magnitude,
+                        character.HumanoidRootPart.Velocity.Magnitude
+                    )
+                end
+            end)
+
+            local tracer = Instance.new("Part", character)
+            tracer.Name = "ESPTracer"
+            tracer.Size = Vector3.new(0.1, 0.1, 0.1)
+            tracer.Anchored = true
+            tracer.CanCollide = false
+            tracer.Material = Enum.Material.Neon
+            tracer.Color = Color3.fromRGB(255, 0, 0)
+            tracer.Transparency = 0.5
+
+            runService.RenderStepped:Connect(function()
+                if character and character:FindFirstChild("HumanoidRootPart") then
+                    local rootPart = character.HumanoidRootPart
+                    tracer.Position = rootPart.Position - Vector3.new(0, rootPart.Size.Y / 2, 0)
+                end
+            end)
+
+            local box = Instance.new("BoxHandleAdornment", character)
+            box.Name = "ESPBox"
+            box.Adornee = character.HumanoidRootPart
+            box.Size = character.HumanoidRootPart.Size + Vector3.new(1, 2, 1)
+            box.Color3 = Color3.fromRGB(255, 0, 0)
+            box.AlwaysOnTop = true
+            box.ZIndex = 1
+            box.Transparency = 0.5
+
+            local boxGoal = {Transparency = 0.8}
+            local boxTweenInfo = TweenInfo.new(1, Enum.EasingStyle.Sine, Enum.EasingDirection.InOut, -1, true)
+            local boxTween = tweenService:Create(box, boxTweenInfo, boxGoal)
+            boxTween:Play()
+        end
+    end
+end
+
+local function removeESP(player)
+    if player.Character then
+        if player.Character:FindFirstChild("ESPHighlight") then
+            player.Character:FindFirstChild("ESPHighlight"):Destroy()
+        end
+        if player.Character:FindFirstChild("ESPBillboard") then
+            player.Character:FindFirstChild("ESPBillboard"):Destroy()
+        end
+        if player.Character:FindFirstChild("ESPTracer") then
+            player.Character:FindFirstChild("ESPTracer"):Destroy()
+        end
+        if player.Character:FindFirstChild("ESPBox") then
+            player.Character:FindFirstChild("ESPBox"):Destroy()
+        end
+    end
+end
+
+local function toggleESP(enabled)
+    if enabled then
+        for _, player in pairs(players:GetPlayers()) do
+            createESP(player)
+        end
+        players.PlayerAdded:Connect(function(player)
+            player.CharacterAdded:Connect(function()
+                createESP(player)
+            end)
+        end)
+        runService.RenderStepped:Connect(function()
+            for _, player in pairs(players:GetPlayers()) do
+                if player ~= localPlayer then
+                    createESP(player)
+                end
+            end
+        end)
+    else
+        for _, player in pairs(players:GetPlayers()) do
+            removeESP(player)
+        end
+    end
+end
+
+PlayersFunctionsTab:CreateButton({
+    Name = "SPAM F",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/SAMUCARARONOB/REPOSIT-RIO/refs/heads/main/%3EGh_%E2%96%A0d%26t%22u%256%22tTwgg%23%F0%9F%8D%B7%F0%9F%97%BF%F0%9F%8D%B7%F0%9F%97%BF%F0%9F%8D%B7%F0%9F%97%BF%F0%9F%8D%B7%F0%9F%97%BF%F0%9F%8D%B7%F0%9F%97%BF%F0%9F%8D%B7%F0%9F%8D%B7%F0%9F%8D%B7"))()
+    end
+})
+
+PlayersFunctionsTab:CreateButton({
+    Name = "SPAM E",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/SAMUCARARONOB/BfyfYcFyov-_9vpuVyic-oycyo/refs/heads/main/%3Bg088_%3E%22%3C/C8B76r%22c%5B%5But%22/7yic"))()
+    end
+})
+
+PlayersFunctionsTab:CreateButton({
+    Name = "SPAM CLICK MOUSE",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/SAMUCARARONOB/ABCD-EFETUAR-A-QUALIDADE-/refs/heads/main/U%3A%C2%A3%5E%E2%82%ACFuf"))()
+    end
+})
+
+PlayersFunctionsTab:CreateButton({
+    Name = "APOCALIPSE",
+    Callback = function()
+        loadstring(game:HttpGet("https://raw.githubusercontent.com/SAMUCARARONOB/Key2/refs/heads/main/Chave2"))()
+    end
+})
+
+PlayersFunctionsTab:CreateToggle({
+    Name = "ESP",
+    CurrentValue = false,
+    Flag = "ToggleESP",
+    Callback = function(Value)
+        espEnabled = Value
+        toggleESP(espEnabled)
+    end
+})
+
+local hitboxEnabled = false
+_G.HeadSize = 20
+_G.Disabled = true
+
+local function toggleHitbox(enabled)
+    _G.Disabled = not enabled
+end
+
+PlayersFunctionsTab:CreateToggle({
+    Name = "HITBOX HEADS",
+    CurrentValue = false,
+    Flag = "ToggleHitboxHeads",
+    Callback = function(Value)
+        hitboxEnabled = Value
+        toggleHitbox(hitboxEnabled)
+    end
+})
+
+game:GetService('RunService').RenderStepped:connect(function()
+    if not _G.Disabled then
+        for i, v in next, game:GetService('Players'):GetPlayers() do
+            if v.Name ~= game:GetService('Players').LocalPlayer.Name then
+                pcall(function()
+                    v.Character.Head.Size = Vector3.new(_G.HeadSize, _G.HeadSize, _G.HeadSize)
+                    v.Character.Head.Transparency = 1
+                    v.Character.Head.BrickColor = BrickColor.new("Red")
+                    v.Character.Head.Material = "Neon"
+                    v.Character.Head.CanCollide = false
+                    v.Character.Head.Massless = true
+                end)
+            end
+        end
+    end
+end)
+
+local invincibilityEnabled = false
+
+local function toggleInvincibility(enabled)
+    if enabled then
+        local player = game.Players.LocalPlayer
+        local RunService = game:GetService("RunService")
+        local Players = game:GetService("Players")
+        local teleportCooldown = {}
+
+        local function getRandomSpawnLocation()
+            local spawns = game.Workspace:FindFirstChild("Spawns")
+            if spawns then
+                local spawnPoints = spawns:GetChildren()
+                return spawnPoints[math.random(1, #spawnPoints)].Position
+            else
+                return Vector3.new(0, 50, 0)
+            end
+        end
+
+        local function applyInvincibilityAndTeleport()
+            if player.Character and player.Character:FindFirstChild("Humanoid") then
+                player.Character.Humanoid.MaxHealth = math.huge
+                player.Character.Humanoid.Health = math.huge
+
+                for _, otherPlayer in ipairs(Players:GetPlayers()) do
+                    if otherPlayer ~= player and otherPlayer.Character and otherPlayer.Character:FindFirstChild("HumanoidRootPart") then
+                        local directionToPlayer = (player.Character.HumanoidRootPart.Position - otherPlayer.Character.HumanoidRootPart.Position).Unit
+                        local lookVector = otherPlayer.Character.HumanoidRootPart.CFrame.LookVector
+                        local ray = Ray.new(otherPlayer.Character.HumanoidRootPart.Position, lookVector * 1000)
+                        local hitPart, hitPosition = game.Workspace:FindPartOnRay(ray, otherPlayer.Character, false, true)
+
+                        if directionToPlayer:Dot(lookVector) > 0 and hitPart and hitPart:IsDescendantOf(player.Character) and not teleportCooldown[otherPlayer] then
+                            local randomSpawnLocation = getRandomSpawnLocation()
+                            player.Character.HumanoidRootPart.CFrame = CFrame.new(randomSpawnLocation)
+                            teleportCooldown[otherPlayer] = true
+
+                            delay(0.00000000001, function()
+                                teleportCooldown[otherPlayer] = nil
+                            end)
+                        end
+                    end
+                end
+            end
+        end
+
+        RunService.RenderStepped:Connect(applyInvincibilityAndTeleport)
+    else
+        -- Reseta o estado do jogador
+        local player = game.Players.LocalPlayer
+        if player.Character and player.Character:FindFirstChild("Humanoid") then
+            player.Character.Humanoid.MaxHealth = 100
+            player.Character.Humanoid.Health = 100
+        end
+    end
+end
+
+PlayersFunctionsTab:CreateToggle({
+    Name = "Invencibilidade",
+    CurrentValue = false,
+    Flag = "ToggleInvincibility",
+    Callback = function(Value)
+        invincibilityEnabled = Value
+        toggleInvincibility(invincibilityEnabled)
+    end
+})
+
+PlayersFunctionsTab:CreateToggle({
+    Name = "Speed Hack",
+    Callback = function()
+        SpeedHack()
+    end
+})
+
+PlayersFunctionsTab:CreateButton({
+    Name = "Teleportar para Localização Aleatória",
+    Callback = function()
+        TeleportRandom()
+    end
+})
+
+PlayersFunctionsTab:CreateToggle({
+    Name = "Fly Mode",
+    Callback = function()
+        FlyMode()
+    end
+})
+
+PlayersFunctionsTab:CreateToggle({
+    Name = "Infinite Jump",
+    Callback = function()
+        InfiniteJump()
+    end
+})
+
+PlayersFunctionsTab:CreateToggle({
+    Name = "ESP",
+    Callback = function()
+        ESP()
+    end
+})
+
+PlayersFunctionsTab:CreateButton({
+    Name = "Instant Kill",
+    Callback = function()
+        InstantKill()
+    end
+})
+
+PlayersFunctionsTab:CreateToggle({
+    Name = "Super Strength",
+    Callback = function()
+        SuperStrength()
+    end
+})
+
+local function createToggle(parent, name, callback)
+    return parent:CreateToggle({
+        Name = name,
+        CurrentValue = false,
+        Flag = name .. "Toggle",
+        Callback = callback
+    })
+end
+
+createToggle(PlayersFunctionsTab, "Céu Diurno", function(Value)
+    if Value then
+        game.Lighting.TimeOfDay = "12:00:00"
+        game.Lighting.Brightness = 2
+    else
+        game.Lighting.TimeOfDay = "20:00:00"
+        game.Lighting.Brightness = 0
+    end
+end)
+
+createToggle(PlayersFunctionsTab, "Céu Noturno", function(Value)
+    if Value then
+        game.Lighting.TimeOfDay = "20:00:00"
+        game.Lighting.Brightness = 0
+    else
+        game.Lighting.TimeOfDay = "12:00:00"
+        game.Lighting.Brightness = 2
+    end
+end)
+
+createToggle(PlayersFunctionsTab, "Tempestade", function(Value)
+    if Value then
+        local storm = Instance.new("ParticleEmitter", game.Workspace)
+        storm.Texture = "rbxassetid://243660364"
+        storm.LightEmission = 0.5
+        storm.Rate = 1000
+        storm.Lifetime = NumberRange.new(1, 2)
+    else
+        for _, emitter in ipairs(game.Workspace:GetChildren()) do
+            if emitter:IsA("ParticleEmitter") then
+                emitter:Destroy()
+            end
+        end
+    end
+end)
+
+createToggle(PlayersFunctionsTab, "Congelar Água", function(Value)
+    if Value then
+        for _, part in ipairs(game.Workspace:GetDescendants()) do
+            if part:IsA("Part") and part.Material == Enum.Material.Water then
+                part.Material = Enum.Material.Ice
+            end
+        end
+    else
+        for _, part in ipairs(game.Workspace:GetDescendants()) do
+            if part:IsA("Part") and part.Material == Enum.Material.Ice then
+                part.Material = Enum.Material.Water
+            end
+        end
+    end
+end)
+
+createToggle(PlayersFunctionsTab, "Gravidade Baixa", function(Value)
+    if Value then
+        game.Workspace.Gravity = game.Workspace.Gravity * 0.2
+    else
+        game.Workspace.Gravity = 196.2
+    end
+end)
+
+createToggle(PlayersFunctionsTab, "Chuva de Meteoros", function(Value)
+    if Value then
+        local function createMeteor()
+            local meteor = Instance.new("Part", game.Workspace)
+            meteor.Size = Vector3.new(5, 5, 5)
+            meteor.Position = Vector3.new(math.random(-500, 500), 500, math.random(-500, 500))
+            meteor.Velocity = Vector3.new(0, -100, 0)
+            meteor.BrickColor = BrickColor.new("Bright orange")
+        end
+        for i = 1, 10 do
+            createMeteor()
+        end
+    else
+        for _, part in ipairs(game.Workspace:GetChildren()) do
+            if part:IsA("Part") and part.BrickColor == BrickColor.new("Bright orange") then
+                part:Destroy()
+            end
+        end
+    end
+end)
+
+createToggle(PlayersFunctionsTab, "Árvores de Ouro", function(Value)
+    for _, tree in ipairs(game.Workspace:GetDescendants()) do
+        if tree:IsA("Part") and tree.Name == "Tree" then
+            if Value then
+                tree.BrickColor = BrickColor.new("Bright yellow")
+                tree.Material = Enum.Material.Metal
+            else
+                tree.BrickColor = BrickColor.new("Forest green")
+                tree.Material = Enum.Material.Wood
+            end
+        end
+    end
+end)
+
+createToggle(PlayersFunctionsTab, "Teletransportar Jogadores", function(Value)
+    if Value then
+        for _, player in ipairs(game.Players:GetPlayers()) do
+            local character = player.Character
+            if character and character:FindFirstChild("HumanoidRootPart") then
+                character.HumanoidRootPart.CFrame = CFrame.new(0, 10, 0)
+            end
+        end
+    end
+end)
+
+createToggle(PlayersFunctionsTab, "Plataformas Invisíveis", function(Value)
+    if Value then
+        for i = 1, 10 do
+            local platform = Instance.new("Part", game.Workspace)
+            platform.Size = Vector3.new(10, 1, 10)
+            platform.Position = Vector3.new(math.random(-100, 100), math.random(20, 100), math.random(-100, 100))
+            platform.Transparency = 0.8
+            platform.Anchored = true
+        end
+    else
+        for _, part in ipairs(game.Workspace:GetChildren()) do
+            if part:IsA("Part") and part.Transparency == 0.8 then
+                part:Destroy()
+            end
+        end
+    end
+end)
+
+createToggle(PlayersFunctionsTab, "Barreira Invisível", function(Value)
+    if Value then
+        local barrier = Instance.new("Part", game.Workspace)
+        barrier.Size = Vector3.new(1000, 1000, 1)
+        barrier.CFrame = CFrame.new(0, 500, 500)
+        barrier.Anchored = true
+        barrier.Transparency = 1
+        barrier.CanCollide = true
+    else
+        for _, part in ipairs(game.Workspace:GetChildren()) do
+            if part:IsA("Part") and part.Transparency == 1 and part.Size == Vector3.new(1000, 1000, 1) then
+                part:Destroy()
+            end
+        end
+    end
+end)
+
+createToggle(PlayersFunctionsTab, "Neve", function(Value)
+    if Value then
+        local snow = Instance.new("ParticleEmitter", game.Workspace)
+        snow.Texture = "rbxassetid://1075651"
+        snow.Rate = 500
+        snow.Lifetime = NumberRange.new(5, 10)
+        snow.Speed = NumberRange.new(5, 10)
+        snow.VelocitySpread = 180
+    else
+        for _, emitter in ipairs(game.Workspace:GetChildren()) do
+            if emitter:IsA("ParticleEmitter") then
+                emitter:Destroy()
+            end
+        end
+    end
+end)
+
+createToggle(PlayersFunctionsTab, "Inundar Mapa", function(Value)
+    if Value then
+        local water = Instance.new("Part", game.Workspace)
+        water.Size = Vector3.new(1000, 10, 1000)
+        water.Position = Vector3.new(0, 5, 0)
+        water.Material = Enum.Material.Water
+        water.Anchored = true
+    else
+        for _, part in ipairs(game.Workspace:GetChildren()) do
+            if part:IsA("Part") and part.Material == Enum.Material.Water then
+                part:Destroy()
+            end
+        end
+    end
+end)
+
+createToggle(PlayersFunctionsTab, "Ponte de Arco-Íris", function(Value)
+    if Value then
+        for i = 0, 100, 10 do
+            local bridgePart = Instance.new("Part", game.Workspace)
+            bridgePart.Size = Vector3.new(10, 1, 10)
+            bridgePart.Position = Vector3.new(i, 10, 0)
+            bridgePart.Anchored = true
+            bridgePart.BrickColor = BrickColor.random()
+        end
+    else
+        for _, part in ipairs(game.Workspace:GetChildren()) do
+            if part:IsA("Part") and part.BrickColor ~= BrickColor.new("Institutional white") then
+                part:Destroy()
+            end
+        end
+    end
+end)
+
+local originalParts = {}
+
+local function saveOriginalParts()
+    originalParts = {}
+    for _, part in ipairs(game.Workspace:GetDescendants()) do
+        if part:IsA("Model") or part:IsA("Part") then
+            table.insert(originalParts, {part, part.Parent})
+        end
+    end
+end
+
+local function restoreOriginalParts()
+    for _, partInfo in ipairs(originalParts) do
+        local part, parent = partInfo[1], partInfo[2]
+        if part and parent then
+            part.Parent = parent
+        end
+    end
+    originalParts = {}
+end
+
+createToggle(PlayersFunctionsTab, "Destruir Construções", function(Value)
+    if Value then
+        saveOriginalParts()
+        for _, part in ipairs(game.Workspace:GetDescendants()) do
+            if part:IsA("Model") or part:IsA("Part") then
+                part:Destroy()
+            end
+        end
+    else
+        restoreOriginalParts()
+    end
+end)
+
+createToggle(PlayersFunctionsTab, "Campo de Força", function(Value)
+    if Value then
+        for _, player in ipairs(game.Players:GetPlayers()) do
+            local character = player.Character
+            if character and character:FindFirstChild("HumanoidRootPart") then
+                local forceField = Instance.new("ForceField", character)
+                forceField.Visible = true
+            end
+        end
+    else
+        for _, player in ipairs(game.Players:GetPlayers()) do
+            local character = player.Character
+            if character and character:FindFirstChildOfClass("ForceField") then
+                character:FindFirstChildOfClass("ForceField"):Destroy()
+            end
+        end
+    end
+end)
